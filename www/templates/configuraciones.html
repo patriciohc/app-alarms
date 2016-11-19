@@ -1,0 +1,19 @@
+<ion-view title="Configuraciones" id="page2" >
+  <ion-content padding="true" class="has-header">
+    <form id="configuraciones-form1" class="list">
+      <label class="item item-input" id="configuraciones-input1">
+        <span class="input-label">Cuenta Emisora</span>
+        <input type="text" placeholder="Cuenta" ng-model="emisor.jid">
+      </label>
+      <label class="item item-input" id="configuraciones-input1">
+        <span class="input-label">Cuenta</span>
+        <input type="text" placeholder="Cuenta" ng-model="user.jid">
+      </label>
+      <label class="item item-input" id="configuraciones-input2">
+        <span class="input-label">Contraseña</span>
+        <input type="password" placeholder="Contraseña" ng-model="user.pass">
+      </label>
+    </form>
+    <button id="configuraciones-button1" class="button button-positive  button-block" ng-click="acceso()">Conectar</button>
+  </ion-content>
+</ion-view>

@@ -1,0 +1,3 @@
+server: suchat.org
+jid: sabase1
+jid: saclient1

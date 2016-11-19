@@ -1,0 +1,5 @@
+{
+  "name": "sistema_alarmas",
+  "app_id": "",
+  "gulpStartupTasks": ["sass", "watch"]
+}
