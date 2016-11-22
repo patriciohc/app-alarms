@@ -2,7 +2,7 @@
   <ion-content padding="true" class="has-header">
     <ion-list id="home-list2">
       <ion-item class="item-icon-left item-icon-right"  ng-repeat="a in alarmas" id="home-list-item{{a.id}}">
-        <i class="icon ion-android-create" ng-click="showEditAlarma()"></i>{{a.name}}
+        <i class="icon ion-android-create" ng-click="showEditAlarma({{a.id}})"></i>{{a.name}}
         <i class="icon ion-android-camera"></i>
       </ion-item>
     </ion-list>

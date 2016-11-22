@@ -1,8 +1,8 @@
 angular.module('app.controllers', [])
 
-.controller('homeCtrl', function ($scope, $stateParams, $timeout, $ionicScrollDelegate, sharedConn, ChatDetails) {
+.controller('homeCtrl', function ($scope, $stateParams, $timeout, $ionicScrollDelegate, $ionicPopup, sharedConn, ChatDetails) {
     var XMPP_DOMAIN  = 'suchat.org'; // Domain we are going to be connected to.
-    $scope.alarmas = JSON.parse(localStorage.getItem("alarmas"));;
+    //$scope.alarmas = JSON.parse(localStorage.getItem("alarmas"));;
     var config = JSON.parse(localStorage.getItem("config"));
 
     var setStyleStatus = function(status){
@@ -28,7 +28,7 @@ angular.module('app.controllers', [])
 
     setStyleStatus(Strophe.Status.DISCONNECTING);
 
-    $scope.showEditAlarma = function(){
+    $scope.showEditAlarma = function(idAlarma) {
       // An elaborate, custom popup
         var myPopup = $ionicPopup.show({
             template: '<input type="text" ng-model="alarmas.name">',
@@ -41,11 +41,11 @@ angular.module('app.controllers', [])
                     text: '<b>Save</b>',
                     type: 'button-positive',
                     onTap: function(e) {
-                        if (!$scope.data.wifi) {
+                        if (!$scope.alarmas.name) {
                             //don't allow the user to close unless he enters wifi password
                             e.preventDefault();
                         } else {
-                            return $scope.data.nameAlarma;
+                            return $scope.alarmas.name;
                         }
                     }
                 }
@@ -53,13 +53,25 @@ angular.module('app.controllers', [])
         });
 
         myPopup.then(function(res) {
-
-            console.log('Tapped!', res);
+            $scope.alarmas.name = "";
+            var alarma = $scope.alarmas.find(function (alarma){
+                if (!alarma) return false;
+                return alarma.id == idAlarma;
+            });
+            if (alarma) {
+                alarma.name = res;
+                localStorage.setItem("alarmas", JSON.stringify($scope.alarmas));
+            }
         });
     }
 
     $scope.activar = function() {
-        sharedConn.login(config.user.jid, XMPP_DOMAIN, config.user.pass);
+        if (!config)
+            config = JSON.parse(localStorage.getItem("config"));
+        if (config)
+            sharedConn.login(config.user.jid, XMPP_DOMAIN, config.user.pass);
+        else
+            $ionicPopup.alert({ title: 'Aviso', template: 'Itroduzca los datos de configuracion antes de conectar' });
     }
 
     $scope.sendMsg=function(to,body){
@@ -70,7 +82,7 @@ angular.module('app.controllers', [])
         sharedConn.getConnectObj().send(reqChannelsItems.tree());
     };
 
-    $scope.messageRecieve=function(msg){
+    $scope.messageRecieve = function(msg){
     //  var to = msg.getAttribute('to');
         var from = msg.getAttribute('from');
         var type = msg.getAttribute('type');
@@ -86,27 +98,34 @@ angular.module('app.controllers', [])
             var textMsg = body.innerHTML;
             var data = JSON.parse(textMsg);
             if (data.type == 1) { // alarmas activas
-                //$scope.alarmas = data.data;
+                var alarmas = JSON.parse(localStorage.getItem("alarmas"));
+                alarmas = alarmas ? alarmas : [];
                 $scope.classBarrFotter = "bar-balanced";
                 $scope.msgStatus = "Monitoreando alarmas";
-                if (!$scope.alarmas) {
-                    $scope.alarmas = new Array(data.data.length);
-                }
+                $scope.alarmas = new Array(data.data.length);
                 for (var i = 0; i < data.data.length; i++) {
                     var item = data.data[i];
-                    var alarma = $scope.alarmas.find(function (alarma){
-                        if (!alarma) return false;
-                        return alarma.id == item;
-                    });
-                    if (!alarma) {
+                    var a = null;
+                    if (alarmas) {
+                        a = alarmas.find(function (alarma){
+                            if (!alarma) return false;
+                            return alarma.id == item;
+                        });
+                    } 
+                    if (!a) {
                         $scope.alarmas[i] = {
                             id: item,
                             name: item
                         }
+                    } else {
+                        $scope.alarmas[i] = {
+                            id: item,
+                            name: a.name
+                        }                        
                     }
                 }
                 //$scope.alarmasActivas = data.data;
-            } else if (data.type == 2) { // alarma acticvada
+            } else if (data.type == 2) { // alarma activada
 
             }
             //$ionicScrollDelegate.scrollBottom(true);
